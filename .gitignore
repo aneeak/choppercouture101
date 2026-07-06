@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# design source files
+/illustrator/
+/indesign/
+
+# original uncompressed videos
+process_original.mp4

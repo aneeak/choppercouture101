@@ -1,26 +1,154 @@
+@import url("https://fonts.googleapis.com/css2?family=Saira+Expanded:wght@300;400&display=swap");
 @import "tailwindcss";
 
+/* =========================================================================
+   CHOPPER COUTURE — Design Tokens
+   Quelle: ChopperCouture_BrandIdentity.pdf (2025)
+   ========================================================================= */
+
+@theme {
+  /* --- Farben (aus Brand Book) --- */
+  --color-cc-black: #0d0d0d;        /* Tief-Schwarz */
+  --color-cc-purple: #7c3aed;       /* Lila — wärmer/violetter, weniger blau */
+  --color-cc-gradient: #e8e3f5;     /* Heller Lila-Schimmer (war Gradient Blau) */
+  --color-cc-offwhite: #f9f9f9;     /* Off-White */
+  --color-cc-green: #22cc77;        /* Sticker Grün — sparsam */
+  --color-cc-pink: #ff5a8a;         /* Pink — Zahnfleisch-Akzent + Hover-Linie Designer */
+  --color-cc-turquoise: #88dcc8;    /* Mint-Türkis — weniger blau, grüner */
+
+  /* Semantische Aliasse */
+  --color-bg-default: #ffffff;
+  --color-text-default: var(--color-cc-black);
+  --color-bg-dark: var(--color-cc-black);
+  --color-text-on-dark: var(--color-cc-offwhite);
+
+  /* --- Fonts ---
+     ASSUMPTION: Inter als Google-Fonts-Äquivalent zu Helvetica Neue / Grotesk.
+     Inter Black (900) ersetzt den Briefing-Platzhalter "Anton" für Headlines.
+     JetBrains Mono ersetzt Courier für Detail-Akzente (Auftragszettel-Look).
+  */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SF Mono", monospace;
+
+  /* --- Custom Easings (für GSAP UND CSS) --- */
+  --ease-cc-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-cc-panel: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* --- Body / Root --- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html,
+body {
+  background: var(--color-bg-default);
+  color: var(--color-text-default);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* --- Lenis: wenn aktiv, kein eigener Body-Scroll --- */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* --- Reduced Motion Override ---
+   Lenis wird im Provider deaktiviert; hier zusätzlich Animationen drosseln. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* --- Selection --- */
+::selection {
+  background: var(--color-cc-purple);
+  color: var(--color-cc-offwhite);
+}
+
+/* --- Tracking-Klassen für Caps (Nav, Labels) --- */
+.tracking-cc-caps {
+  letter-spacing: 0.05em;
+}
+
+/* --- Scrollbar verstecken (für Mobile-Swipe-Galerie) --- */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
+
+/* --- Mobile: sicherstellen dass Body-Copy nicht unter 15px fällt --- */
+@media (max-width: 767px) {
+  main p, main li, main label { font-size: max(15px, 1em); }
+}
+
+/* --- Copy + Topline: breite, leichte Schrift (Loos-Wide-Ersatz: Saira Expanded) ---
+   Gescopet auf Inhalts-Sektionen → Header (im <header>) und Headlines (h1–h4,
+   .font-black) bleiben Inter, exakt wie im Design. */
+section p,
+section label,
+section figcaption,
+section .tracking-cc-caps,
+main p {
+  font-family: "Saira Expanded", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 300;
+}
+/* Headlines + alles Fette bleiben Inter Black */
+section h1, section h2, section h3, section h4,
+section .font-black {
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* --- Idle-Atmung fürs Logo (sehr subtil) --- */
+@keyframes cc-logo-breathe {
+  0%, 100% { filter: blur(0px); }
+  50%      { filter: blur(1.5px); }
+}
+.cc-logo-idle {
+  animation: cc-logo-breathe 6s var(--ease-cc-out) infinite;
+}
+
+/* Reduced motion: keine Atmung */
+@media (prefers-reduced-motion: reduce) {
+  .cc-logo-idle {
+    animation: none;
+  }
+}
+
+/* --- Tooth Designer: Zahn-Polygone über dem Gebiss-PNG --- */
+.cc-tooth {
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  cursor: pointer;
+  transition: fill 0.2s var(--ease-cc-out), stroke 0.2s var(--ease-cc-out), stroke-width 0.2s var(--ease-cc-out);
+}
+.cc-tooth:hover {
+  fill: rgba(255, 90, 138, 0.45);
+  stroke: var(--color-cc-pink);
+  stroke-width: 3;
+  mix-blend-mode: multiply;
+}
+.cc-tooth[data-selected="true"] {
+  /* multiply: weiße Zähne werden kräftig rosa, rosa Zahnfleisch bleibt klar abgegrenzt */
+  fill: rgb(255, 80, 150);
+  stroke: rgb(255, 30, 100);
+  stroke-width: 3;
+  mix-blend-mode: multiply;
 }
